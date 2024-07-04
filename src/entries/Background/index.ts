@@ -6,7 +6,10 @@ import browser from 'webextension-polyfill';
   browser.webRequest.onSendHeaders.addListener(
     onSendHeaders,
     {
-      urls: ['<all_urls>'],
+      urls: [
+        'https://app.revolut.com/api/retail/user/current',
+        'https://app.revolut.com/api/retail/transaction/*' 
+      ],
     },
     ['requestHeaders', 'extraHeaders'],
   );
@@ -14,7 +17,10 @@ import browser from 'webextension-polyfill';
   browser.webRequest.onBeforeRequest.addListener(
     onBeforeRequest,
     {
-      urls: ['<all_urls>'],
+      urls: [
+        'https://app.revolut.com/api/retail/user/current',
+        'https://app.revolut.com/api/retail/transaction/*' 
+      ],
     },
     ['requestBody'],
   );
@@ -22,7 +28,10 @@ import browser from 'webextension-polyfill';
   browser.webRequest.onResponseStarted.addListener(
     onResponseStarted,
     {
-      urls: ['<all_urls>'],
+      urls: [
+        'https://app.revolut.com/api/retail/user/current',
+        'https://app.revolut.com/api/retail/transaction/*' 
+      ],
     },
     ['responseHeaders', 'extraHeaders'],
   );

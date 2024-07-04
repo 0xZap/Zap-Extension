@@ -12,11 +12,14 @@ import Requests from '../../pages/Requests';
 import Options from '../../pages/Options';
 import Request from '../../pages/Requests/Request';
 import Home from '../../pages/Home';
-import logo from '../../assets/img/icon-128.png';
+import Login from '../../pages/Login';
+import logo from '../../assets/img/icon-128-white.png';
 import RequestBuilder from '../../pages/RequestBuilder';
 import Notarize from '../../pages/Notarize';
 import ProofViewer from '../../pages/ProofViewer';
 import History from '../../pages/History';
+import Onramp from '../../pages/OnRamp';
+import Revolut from '../../pages/Revolut';
 import ProofUploader from '../../pages/ProofUploader';
 import browser from 'webextension-polyfill';
 import store from '../../utils/store';
@@ -75,23 +78,23 @@ const Popup = () => {
 
   return (
     <div className="flex flex-col w-full h-full overflow-hidden">
-      <div className="flex flex-nowrap flex-shrink-0 flex-row items-center relative gap-2 h-9 p-2 cursor-default justify-center bg-slate-300 w-full">
+      <div className="flex flex-nowrap flex-shrink-0 flex-row items-center relative gap-2 h-9 p-2 cursor-default justify-center bg-secondary w-full">
         <img
           className="absolute left-2 h-5 cursor-pointer"
           src={logo}
           alt="logo"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/home')}
         />
-        <div className="absolute right-2 flex flex-nowrap flex-row items-center gap-1 justify-center w-fit">
+        {/* <div className="absolute right-2 flex flex-nowrap flex-row items-center gap-1 justify-center w-fit">
           {!!activeTab?.favIconUrl && (
             <img
               src={activeTab?.favIconUrl}
-              className="h-5 rounded-full"
+              className="h-4 rounded-full"
               alt="logo"
             />
           )}
           <div className="text-xs">{url?.hostname}</div>
-        </div>
+        </div> */}
       </div>
       <Routes>
         <Route path="/requests/:requestId/*" element={<Request />} />
@@ -100,11 +103,14 @@ const Popup = () => {
         <Route path="/verify" element={<ProofUploader />} />
         <Route path="/history" element={<History />} />
         <Route path="/requests" element={<Requests />} />
+        <Route path="/onramp" element={<Onramp />} />
+        <Route path="/revolut" element={<Revolut />} />
         <Route path="/custom/*" element={<RequestBuilder />} />
         <Route path="/options" element={<Options />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/plugininfo" element={<PluginUploadInfo />} />
-        <Route path="*" element={<Navigate to="/home" />} />
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </div>
   );

@@ -8,6 +8,10 @@ import mutex from './mutex';
 import browser from 'webextension-polyfill';
 import { addRequest } from '../../reducers/requests';
 import { urlify } from '../../utils/misc';
+import {
+  RevolutRequest,
+  RevolutRequestType,
+} from '../../utils/types/revolutActions';
 
 export const onSendHeaders = (
   details: browser.WebRequest.OnSendHeadersDetailsType,
@@ -19,6 +23,22 @@ export const onSendHeaders = (
       const cache = getCacheByTabId(tabId);
       const existing = cache.get<RequestLog>(requestId);
       const { hostname } = urlify(details.url) || {};
+
+      // Set request type
+      const urlString = details.url;
+      const revolutTagEndpointRegex = new RegExp(
+        'https://app.revolut.com/api/retail/user/current',
+      );
+      const revolutTransactionEndpointRegex = new RegExp(
+        'https://app.revolut.com/api/retail/transaction/\\S+',
+      );
+
+      let requestType: RevolutRequestType = 'NONE';
+      if (revolutTagEndpointRegex.test(urlString)) {
+        requestType = RevolutRequest.PAYMENT_PROFILE;
+      } else if (revolutTransactionEndpointRegex.test(urlString)) {
+        requestType = RevolutRequest.TRANSFER_DETAILS;
+      }
 
       if (hostname && details.requestHeaders) {
         const headerStore = getHeaderStoreByHost(hostname);
@@ -48,6 +68,7 @@ export const onSendHeaders = (
         requestHeaders: details.requestHeaders || [],
         tabId: tabId,
         requestId: requestId,
+        requestType,
       });
     }
   });
@@ -97,6 +118,23 @@ export const onResponseStarted = (
     const cache = getCacheByTabId(tabId);
 
     const existing = cache.get<RequestLog>(requestId);
+
+    // Set request type
+    const urlString = details.url;
+    const revolutTagEndpointRegex = new RegExp(
+      'https://app.revolut.com/api/retail/user/current',
+    );
+    const revolutTransactionEndpointRegex = new RegExp(
+      'https://app.revolut.com/api/retail/transaction/\\S+',
+    );
+
+    let requestType: RevolutRequestType = 'NONE';
+    if (revolutTagEndpointRegex.test(urlString)) {
+      requestType = RevolutRequest.PAYMENT_PROFILE;
+    } else if (revolutTransactionEndpointRegex.test(urlString)) {
+      requestType = RevolutRequest.TRANSFER_DETAILS;
+    }
+
     const newLog: RequestLog = {
       requestHeaders: [],
       ...existing,
@@ -107,6 +145,7 @@ export const onResponseStarted = (
       tabId: tabId,
       requestId: requestId,
       responseHeaders,
+      requestType,
     };
 
     cache.set(requestId, newLog);

@@ -38,6 +38,7 @@ import {
   getNotaryApi,
   getProxyApi,
 } from '../../utils/storage';
+import { RevolutRequestType } from '../../utils/types/revolutActions';
 
 const charwise = require('charwise');
 
@@ -64,6 +65,7 @@ export enum BackgroundActiontype {
   get_plugin_hashes = 'get_plugin_hashes',
   open_popup = 'open_popup',
   change_route = 'change_route',
+  open_tab = 'open_tab',
 }
 
 export type BackgroundAction = {
@@ -86,6 +88,7 @@ export type RequestLog = {
     [k: string]: string[];
   };
   responseHeaders?: browser.WebRequest.HttpHeaders;
+  requestType: RevolutRequestType;
 };
 
 export type RequestHistory = {
@@ -110,6 +113,7 @@ export type RequestHistory = {
   secretHeaders?: string[];
   secretResps?: string[];
   cid?: string;
+  requestType: RevolutRequestType;
 };
 
 export const initRPC = () => {
@@ -152,6 +156,8 @@ export const initRPC = () => {
           return handleExecPluginProver(request);
         case BackgroundActiontype.open_popup:
           return handleOpenPopup(request);
+        case BackgroundActiontype.open_tab:
+          return handleOpenTab(request);
         default:
           break;
       }
@@ -282,6 +288,7 @@ async function handleProveRequestStart(
     websocketProxyUrl,
     secretHeaders,
     secretResps,
+    requestType,
   } = request.data;
 
   const { id } = await addNotaryRequest(Date.now(), {
@@ -296,6 +303,7 @@ async function handleProveRequestStart(
     websocketProxyUrl,
     secretHeaders,
     secretResps,
+    requestType,
   });
 
   await setNotaryRequestStatus(id, 'pending');
@@ -323,6 +331,7 @@ async function handleProveRequestStart(
       websocketProxyUrl,
       secretHeaders,
       secretResps,
+      requestType,
       loggingFilter: await getLoggingFilter(),
     },
   });
@@ -342,6 +351,7 @@ async function runPluginProver(request: BackgroundAction, now = Date.now()) {
     websocketProxyUrl: _websocketProxyUrl,
     maxSentData: _maxSentData,
     maxRecvData: _maxRecvData,
+    requestType,
   } = request.data;
   const notaryUrl = _notaryUrl || (await getNotaryApi());
   const websocketProxyUrl = _websocketProxyUrl || (await getProxyApi());
@@ -361,6 +371,7 @@ async function runPluginProver(request: BackgroundAction, now = Date.now()) {
     maxSentData,
     secretHeaders,
     secretResps,
+    requestType,
   });
 
   await setNotaryRequestStatus(id, 'pending');
@@ -388,6 +399,7 @@ async function runPluginProver(request: BackgroundAction, now = Date.now()) {
       maxSentData,
       secretHeaders,
       secretResps,
+      requestType,
       loggingFilter: await getLoggingFilter(),
     },
   });
@@ -553,5 +565,14 @@ async function handleOpenPopup(request: BackgroundAction) {
     };
 
     browser.windows.onRemoved.addListener(onPopUpClose);
+  }
+}
+
+async function handleOpenTab(request: BackgroundAction) {
+  if (request.data.url) {
+    await browser.tabs.create({
+      url: request.data.url,
+      active: true,
+    });
   }
 }

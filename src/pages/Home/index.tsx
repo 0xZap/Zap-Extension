@@ -18,10 +18,56 @@ export default function Home(): ReactElement {
   const [error, showError] = useState('');
 
   return (
-    <div className="flex flex-col gap-4 py-4 overflow-y-auto">
+    <div className="flex flex-col overflow-y-auto">
       {error && <ErrorModal onClose={() => showError('')} message={error} />}
-      <div className="flex flex-col flex-nowrap justify-center gap-2 mx-4">
-        <NavButton fa="fa-solid fa-table" onClick={() => navigate('/requests')}>
+      <div className="flex flex-col flex-nowrap justify-center">
+        <div className="bg-gray-700 flex flex-col w-full justify-center items-center py-4">
+          <div className="text-center mb-12">
+            <div className="text-gray-400">Main · USDC</div>
+            <div className="text-3xl text-white font-bold">$500</div>
+            <div className="mt-4">
+              <button className="bg-gray-400 text-white py-1 px-6 text-sm rounded-full hover:bg-gray-300 transition-all duration-700 ease-in-out cursor-pointer">
+                Accounts
+              </button>
+            </div>
+          </div>
+          <div className="w-full px-4 flex space-x-6 mb-6">
+            <button className="w-[20%] flex flex-col items-center cursor-pointer">
+              <div className="flex flex-col rounded-full items-center justify-center bg-gray-400 text-white p-2 w-8 h-8 mb-2 hover:bg-gray-300 transition-all duration-700 ease-in-out cursor-pointer">
+                +
+              </div>
+              <span className="text-gray-400">Add Money</span>
+            </button>
+            <button className="w-[20%] flex flex-col items-center cursor-pointer">
+              <div className="flex flex-col rounded-full items-center justify-center bg-gray-400 text-white p-2 w-8 h-8 mb-2 hover:bg-gray-300 transition-all duration-700 ease-in-out cursor-pointer">
+                ⮂
+              </div>
+              <span className="text-gray-400">Exchange</span>
+            </button>
+            <button className="w-[20%] flex flex-col items-center cursor-pointer">
+              <div className="flex flex-col rounded-full items-center justify-center bg-gray-400 text-white p-2 w-8 h-8 mb-2 hover:bg-gray-300 transition-all duration-700 ease-in-out cursor-pointer">
+                ←
+              </div>
+              <span className="text-gray-400">Send</span>
+            </button>
+            <button className="w-[20%] flex flex-col items-center cursor-pointer">
+              <div className="flex flex-col rounded-full items-center justify-center bg-gray-400 text-white p-2 w-8 h-8 mb-2 hover:bg-gray-300 transition-all duration-700 ease-in-out cursor-pointer">
+                ←
+              </div>
+              <span className="text-gray-400">Receive</span>
+            </button>
+          </div>
+          <div className="w-full px-4 flex flex-col justify-center items-center">
+            <button
+              onClick={() => navigate('/home')}
+              className="bg-blue-600 text-white py-1 text-md font-bold hover:bg-blue-400 rounded-full w-full transition-all duration-700 ease-in-out cursor-pointer"
+            >
+              Data Proofs
+            </button>
+          </div>
+        </div>
+        <div className="flex-1 flex flex-col flex-nowrap justify-center p-4">
+          {/* <NavButton fa="fa-solid fa-table" onClick={() => navigate('/requests')}>
           <span>Requests</span>
           <span>{`(${requests.length})`}</span>
         </NavButton>
@@ -36,16 +82,23 @@ export default function Home(): ReactElement {
         </NavButton>
         <NavButton fa="fa-solid fa-list" onClick={() => navigate('/history')}>
           History
-        </NavButton>
-        <NavButton className="relative" fa="fa-solid fa-plus">
+        </NavButton> */}
+          <NavButton fa="fa-solid fa-check" onClick={() => navigate('/onramp')}>
+            OnRamp Proof
+          </NavButton>
+        </div>
+        <div className="flex flex-col py-2 mx-4">
+          <p className="text-sm">Version 0.0</p>
+        </div>
+        {/* <NavButton className="relative" fa="fa-solid fa-plus">
           <PluginUploadInfo />
           Add a plugin
         </NavButton>
         <NavButton fa="fa-solid fa-gear" onClick={() => navigate('/options')}>
           Options
-        </NavButton>
+        </NavButton> */}
       </div>
-      <PluginList className="mx-4" />
+      {/* <PluginList className="mx-4" /> */}
     </div>
   );
 }
@@ -73,7 +126,7 @@ function NavButton(props: {
       disabled={props.disabled}
     >
       <Icon className="flex-grow-0 flex-shrink-0" fa={props.fa} size={1} />
-      <span className="flex-grow flex-shrink w-0 flex-grow font-bold">
+      <span className="flex-grow flex-shrink w-0 font-bold">
         {props.children}
       </span>
     </button>

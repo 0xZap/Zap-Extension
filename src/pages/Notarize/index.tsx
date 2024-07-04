@@ -22,6 +22,8 @@ import {
   getMaxRecv,
 } from '../../utils/storage';
 import { useDispatch } from 'react-redux';
+// importing axios to communicate with the server
+import axios from 'axios';
 
 const maxTranscriptSize = 16384;
 
@@ -53,22 +55,39 @@ export default function Notarize(): ReactElement {
     headers['Accept-Encoding'] = 'identity';
     headers['Connection'] = 'close';
 
-    dispatch(
-      // @ts-ignore
-      notarizeRequest({
-        url: req.url,
-        method: req.method,
-        headers,
-        body: req.requestBody,
-        maxSentData,
-        maxRecvData,
-        maxTranscriptSize,
-        notaryUrl,
-        websocketProxyUrl,
-        secretHeaders,
-        secretResps,
-      }),
-    );
+    const data = {
+      url: req.url,
+      method: req.method,
+      headers: headers,
+      body: req.requestBody,
+    };
+
+    try {
+      const response = await axios.post(
+        'http://127.0.0.1:8000/api/proof_of_account',
+        data,
+      );
+      console.log('Message sent successfully:', response.data);
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+
+    // dispatch(
+    //   // @ts-ignore
+    //   notarizeRequest({
+    //     url: req.url,
+    //     method: req.method,
+    //     headers,
+    //     body: req.requestBody,
+    //     maxSentData,
+    //     maxRecvData,
+    //     maxTranscriptSize,
+    //     notaryUrl,
+    //     websocketProxyUrl,
+    //     secretHeaders,
+    //     secretResps,
+    //   }),
+    // );
     navigate(`/history`);
   }, [req, secretHeaders, secretResps]);
 
