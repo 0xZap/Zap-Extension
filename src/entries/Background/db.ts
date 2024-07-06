@@ -15,6 +15,9 @@ const pluginDb = db.sublevel<string, string>('plugin', {
 const pluginConfigDb = db.sublevel<string, PluginConfig>('pluginConfig', {
   valueEncoding: 'json',
 });
+const z2zDb = db.sublevel<string, any>('z2z', {
+  valueEncoding: 'json',
+});
 
 export async function addNotaryRequest(
   now = Date.now(),
@@ -221,4 +224,13 @@ export async function setNotaryRequestCid(
   await historyDb.put(id, newReq);
 
   return newReq;
+}
+
+export async function setTransactionData(data: any): Promise<any> {
+  await z2zDb.put('transactionData', data);
+  return data;
+}
+
+export async function getTransactionData(): Promise<any> {
+  return z2zDb.get('transactionData');
 }

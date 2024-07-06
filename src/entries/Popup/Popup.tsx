@@ -13,6 +13,7 @@ import Options from '../../pages/Options';
 import Request from '../../pages/Requests/Request';
 import Home from '../../pages/Home';
 import Login from '../../pages/Login';
+import Success from '../../pages/Success';
 import logo from '../../assets/img/icon-128-white.png';
 import RequestBuilder from '../../pages/RequestBuilder';
 import Notarize from '../../pages/Notarize';
@@ -78,7 +79,7 @@ const Popup = () => {
 
   return (
     <div className="flex flex-col w-full h-full overflow-hidden">
-      <div className="flex flex-nowrap flex-shrink-0 flex-row items-center relative gap-2 h-9 p-2 cursor-default justify-center bg-secondary w-full">
+      <div className="flex flex-nowrap flex-shrink-0 flex-row items-center relative gap-2 h-9 p-2 cursor-default justify-center bg-[#000732] w-full">
         <img
           className="absolute left-2 h-5 cursor-pointer"
           src={logo}
@@ -109,6 +110,7 @@ const Popup = () => {
         <Route path="/options" element={<Options />} />
         <Route path="/home" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/success" element={<Success />} />
         <Route path="/plugininfo" element={<PluginUploadInfo />} />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>

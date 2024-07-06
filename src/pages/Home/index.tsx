@@ -88,7 +88,7 @@ export default function Home(): ReactElement {
           </NavButton>
         </div>
         <div className="flex flex-col py-2 mx-4">
-          <p className="text-sm">Version 0.0</p>
+          <p className="text-sm">Version 0.0.10</p>
         </div>
         {/* <NavButton className="relative" fa="fa-solid fa-plus">
           <PluginUploadInfo />

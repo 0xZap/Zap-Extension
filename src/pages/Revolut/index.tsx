@@ -16,9 +16,7 @@ import {
 } from '../../utils/types/revolutActions';
 import axios from 'axios';
 import { urlify } from '../../utils/misc';
-import browser from 'webextension-polyfill';
 import { useDispatch } from 'react-redux';
-import { set } from '../../utils/storage';
 
 export default function Revolut(): ReactElement {
   const dispatch = useDispatch();
@@ -109,31 +107,92 @@ export default function Revolut(): ReactElement {
       setTxAmount(response.data.amount);
       setTxRecipient(response.data.recipient);
       setTxProof(response.data.transaction_proof);
+
+      const transactionData = {
+        tlsn_id: response.data.id,
+        currency: response.data.currency,
+        amount: response.data.amount,
+        recipient: response.data.recipient,
+        transaction_proof: response.data.transaction_proof,
+      };
+
+      chrome.runtime.sendMessage({
+        action: 'request_extension_data',
+        data: transactionData,
+      });
+
+      // set delay 4s
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+
       setState(1);
     } catch (error) {
       console.error('Error: ', error);
     } finally {
       setLoading(false);
+      navigate('/success');
     }
   }, [req]);
 
-  async function sendVerification() {
-    if (!txProof) return;
+  function divideAndFormat(numberStr: string): string {
+    // Convert the string to a BigInt
+    const number = BigInt(numberStr);
 
-    console.log('Sending verification');
+    // Perform the division
+    const divisor = BigInt(10 ** 18);
+    const result = number / divisor;
 
-    alert('Verification sent!');
+    // Get the remainder for the decimal part
+    const remainder = number % divisor;
+    const decimalPart = Number(remainder) / Number(divisor);
 
-    navigate('/');
+    // Format the result with 2 decimal places
+    const formattedResult = `${result}.${Math.floor(decimalPart * 100)
+      .toString()
+      .padStart(2, '0')}`;
+
+    return formattedResult;
   }
 
+  // async function sendVerification() {
+  //   if (!txProof) return;
+
+  //   try {
+  //     const transactionData = {
+  //       tlsn_id: txId,
+  //       currency: txCurrency,
+  //       amount: txAmount,
+  //       recipient: txRecipient,
+  //       transaction_proof: txProof,
+  //     };
+
+  //     chrome.runtime.sendMessage({
+  //       action: 'request_extension_data',
+  //       data: transactionData,
+  //     });
+
+  //     // const response = await axios.post(
+  //     //   'http://127.0.0.1:4000/tlsn/',
+  //     //   transactionData,
+  //     // );
+
+  //     // console.log('Response: ', response);
+
+  //     setState(2);
+  //   } catch (error) {
+  //     console.error('Error: ', error);
+  //   } finally {
+  //     alert('Verification Completed');
+  //     navigate('/');
+  //   }
+  // }
+
   return (
-    <div className="flex flex-col flex-nowrap flex-grow">
-      <div className="flex flex-row flex-nowrap bg-gray-100 py-4 px-4 gap-2">
-        <p>Revolut On Ramp</p>
+    <div className="flex flex-col flex-nowrap flex-grow bg-three-radial">
+      <div className="flex flex-row text-white flex-nowrap bg-black/30 backdrop-blur-md py-2 px-4 gap-2">
+        <p>Revolut On Ramp / Off Ramp </p>
       </div>
       <div className="flex flex-col gap-4 flex-nowrap overflow-y-auto p-4">
-        <p className="mb-2 text-gray-700">
+        <p className="mb-2 text-white">
           <span className="font-bold">First Step: </span> Open your Revolut
           Account in browser
         </p>
@@ -141,61 +200,56 @@ export default function Revolut(): ReactElement {
           onClick={() =>
             chrome.tabs.update({ url: 'https://app.revolut.com/start' })
           }
-          className="flex flex-row justify-center items-center w-full py-1 flex-nowrap shadow-lg rounded-md p-2 text-gray-700 hover:text-black hover:bg-gray-200 cursor-pointer transition-all duration-500 ease-in-out"
+          className="font-bold text-md flex flex-row font-bold bg-black/30 backdrop-blur-md justify-center items-center w-full py-1 flex-nowrap shadow-xl rounded-md p-2 text-white hover:text-[#000732] hover:bg-white cursor-pointer transition-all duration-500 ease-in-out"
         >
           <p>Go to Revolut</p>
         </div>
-        <div className="flex flex-col gap-2 flex-nowrap">
-          <p className="text-gray-700 truncate">
+        {/* <div className="flex flex-col gap-2 flex-nowrap">
+          <p className="text-white truncate">
             <span className="font-bold">Current URL: </span>
             {displayUrl}
           </p>
-        </div>
-        <p className="mb-2 text-gray-700">
+        </div> */}
+        <p className="mt-4 mb-2 text-white">
           <span className="font-bold">Second Step: </span> Go to any transaction
           and open it, then you can click the button below to create a
-          transaction proof
+          transaction proof usign TLSN
         </p>
         <button
           disabled={filteredRequests.length === 0 || loading}
           onClick={notarizeTransferRevolut}
-          className="flex flex-row justify-center items-center w-full py-1 flex-nowrap shadow-lg rounded-md p-2 text-gray-700 hover:text-black hover:bg-gray-200 cursor-pointer transition-all duration-500 ease-in-out disabled:text-gray-200 disabled:cursor-not-allowed"
+          className="font-bold text-md flex flex-row font-bold bg-[#00ff95] backdrop-blur-md justify-center items-center w-full py-1 flex-nowrap shadow-xl rounded-md p-2 text-[#000732] hover:text-[#000732] hover:bg-white cursor-pointer transition-all duration-500 ease-in-out disabled:cursor-not-allowed disabled:bg-gray-600 disabled:text-gray-300 disabled:border-transparent"
         >
           {loading ? 'Loading Proof...' : 'Create Transaction Proof'}
         </button>
-        <div className="flex flex-col gap-2 flex-nowrap">
-          <p className="text-gray-700 truncate">
+        <div className="mt-4 flex flex-col gap-3 flex-nowrap p-3 border-[1px] border-[#00ff95] rounded-md">
+          <p className="text-white truncate">
             <span className="font-bold">Transaction ID: </span>
             {txId}
           </p>
-          <p className="text-gray-700 truncate">
+          <p className="text-white truncate">
             <span className="font-bold">Currency: </span>
             {txCurrency}
           </p>
-          <p className="text-gray-700 truncate">
-            <span className="font-bold">Amount: </span>
-            {txAmount}
+          <p className="text-white truncate">
+            <span className="font-bold">Amount: </span> ${' '}
+            {divideAndFormat(txAmount ?? '0')}
           </p>
-          <p className="text-gray-700 truncate">
-            <span className="font-bold">Recipient: </span>
-            {txRecipient}
+          <p className="text-white truncate">
+            <span className="font-bold">Recipient: </span> @{txRecipient}
           </p>
-          <p className="text-gray-700 truncate">
+          <p className="text-white truncate">
             <span className="font-bold">Proof: </span>
             {txProof}
           </p>
         </div>
-        <p className="mb-2 text-gray-700">
-          <span className="font-bold">Third Step: </span> Now you can send us
-          the proof and complete the verification
-        </p>
-        <button
+        {/* <button
           disabled={state !== 1}
           onClick={sendVerification}
-          className="flex flex-row justify-center items-center w-full py-1 flex-nowrap shadow-lg rounded-md p-2 text-gray-700 hover:text-black hover:bg-gray-200 cursor-pointer transition-all duration-500 ease-in-out disabled:text-gray-200 disabled:cursor-not-allowed"
+          className="flex flex-row justify-center items-center w-full py-1 flex-nowrap shadow-lg rounded-md p-2 text-white hover:text-black hover:bg-gray-200 cursor-pointer transition-all duration-500 ease-in-out disabled:text-gray-200 disabled:cursor-not-allowed"
         >
           Complete Verification
-        </button>
+        </button> */}
       </div>
     </div>
   );

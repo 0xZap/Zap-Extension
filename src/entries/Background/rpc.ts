@@ -66,6 +66,7 @@ export enum BackgroundActiontype {
   open_popup = 'open_popup',
   change_route = 'change_route',
   open_tab = 'open_tab',
+  set_data = 'set_data',
 }
 
 export type BackgroundAction = {
@@ -158,6 +159,8 @@ export const initRPC = () => {
           return handleOpenPopup(request);
         case BackgroundActiontype.open_tab:
           return handleOpenTab(request);
+        case BackgroundActiontype.set_data:
+          return handleSetData(request);
         default:
           break;
       }
@@ -573,6 +576,14 @@ async function handleOpenTab(request: BackgroundAction) {
     await browser.tabs.create({
       url: request.data.url,
       active: true,
+    });
+  }
+}
+
+async function handleSetData(request: BackgroundAction) {
+  if (request.data) {
+    chrome.runtime.onMessage.addListener((request) => {
+      //
     });
   }
 }

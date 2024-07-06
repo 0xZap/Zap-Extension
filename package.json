@@ -18,6 +18,7 @@
   "dependencies": {
     "@extism/extism": "^1.0.2",
     "@fortawesome/fontawesome-free": "^6.4.2",
+    "@lottiefiles/react-lottie-player": "^3.5.4",
     "async-mutex": "^0.4.0",
     "axios": "^1.7.2",
     "buffer": "^6.0.3",

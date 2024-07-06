@@ -1,6 +1,7 @@
 import { onBeforeRequest, onResponseStarted, onSendHeaders } from './handlers';
 import { deleteCacheByTabId } from './cache';
 import browser from 'webextension-polyfill';
+import { getTransactionData } from './db';
 
 (async () => {
   browser.webRequest.onSendHeaders.addListener(
@@ -8,7 +9,7 @@ import browser from 'webextension-polyfill';
     {
       urls: [
         'https://app.revolut.com/api/retail/user/current',
-        'https://app.revolut.com/api/retail/transaction/*' 
+        'https://app.revolut.com/api/retail/transaction/*',
       ],
     },
     ['requestHeaders', 'extraHeaders'],
@@ -19,7 +20,7 @@ import browser from 'webextension-polyfill';
     {
       urls: [
         'https://app.revolut.com/api/retail/user/current',
-        'https://app.revolut.com/api/retail/transaction/*' 
+        'https://app.revolut.com/api/retail/transaction/*',
       ],
     },
     ['requestBody'],
@@ -30,7 +31,7 @@ import browser from 'webextension-polyfill';
     {
       urls: [
         'https://app.revolut.com/api/retail/user/current',
-        'https://app.revolut.com/api/retail/transaction/*' 
+        'https://app.revolut.com/api/retail/transaction/*',
       ],
     },
     ['responseHeaders', 'extraHeaders'],
@@ -70,3 +71,24 @@ async function createOffscreenDocument() {
     creatingOffscreen = null;
   }
 }
+
+chrome.runtime.onMessage.addListener((message) => {
+  console.log('Background received of request_extension_data', message);
+  if (message.action === 'request_extension_data') {
+    console.log(
+      new Date().toISOString(),
+      'Successfully fetched request_extension_data',
+    );
+    let response = message.data;
+    chrome.tabs.query(
+      { url: 'http://localhost:3001/liquidity' },
+      function (tabs) {
+        if (!tabs[0] || !tabs[0].id) return;
+        chrome.tabs.sendMessage(tabs[0].id, {
+          action: 'request_response',
+          data: { response },
+        });
+      },
+    );
+  }
+});
