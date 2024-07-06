@@ -23,7 +23,7 @@
     {
       "matches": [
         "https://app.revolut.com/*",
-        "http://localhost:3001/*",
+        "http:///*",
         "http://127.0.0.1:8000/*"
       ],
       "js": ["contentScript.bundle.js"],

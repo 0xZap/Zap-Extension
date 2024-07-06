@@ -80,15 +80,12 @@ chrome.runtime.onMessage.addListener((message) => {
       'Successfully fetched request_extension_data',
     );
     let response = message.data;
-    chrome.tabs.query(
-      { url: 'http://localhost:3001/liquidity' },
-      function (tabs) {
-        if (!tabs[0] || !tabs[0].id) return;
-        chrome.tabs.sendMessage(tabs[0].id, {
-          action: 'request_response',
-          data: { response },
-        });
-      },
-    );
+    chrome.tabs.query({ url: 'http://localhost:3001' }, function (tabs) {
+      if (!tabs[0] || !tabs[0].id) return;
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: 'request_response',
+        data: { response },
+      });
+    });
   }
 });
